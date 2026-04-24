@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fifty Celsius | Boutique Ingredients</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:italic&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9F8F4;
+        }
+        .font-serif {
+            font-family: 'Instrument Serif', serif;
+        }
+        .selection-bg::selection {
+            background-color: #E2DED0;
+        }
+        /* Custom scrollbar for premium feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F9F8F4;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1A1A1A;
+        }
+        /* Smooth transitions */
+        .transition-all-500 {
+            transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="selection-bg">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Fixed Lucide Icon Component for the browser environment
+        const Icon = ({ name, size = 20, className = "", strokeWidth = 2 }) => {
+            const [iconSvg, setIconSvg] = useState("");
+
+            useEffect(() => {
+                if (window.lucide && window.lucide.icons) {
+                    const iconDef = window.lucide.icons[name];
+                    if (iconDef) {
+                        // Use createElement to generate the SVG DOM element
+                        const svgElement = window.lucide.createElement(iconDef);
+                        svgElement.setAttribute('width', size);
+                        svgElement.setAttribute('height', size);
+                        svgElement.setAttribute('stroke-width', strokeWidth);
+                        svgElement.setAttribute('stroke', 'currentColor');
+                        svgElement.setAttribute('fill', 'none');
+                        if (className) svgElement.setAttribute('class', className);
+                        
+                        setIconSvg(svgElement.outerHTML);
+                    }
+                }
+            }, [name, size, className, strokeWidth]);
+
+            return <span className="inline-flex items-center justify-center" dangerouslySetInnerHTML={{ __html: iconSvg }} />;
+        };
+
+        const SmartImage = ({ src, alt, className, fallbackColor = "bg-stone-200" }) => {
+            const [error, setError] = useState(false);
+            const [loaded, setLoaded] = useState(false);
+            
+            return (
+                <div className={`relative overflow-hidden ${className} ${fallbackColor} flex items-center justify-center transition-all duration-700`}>
+                    {!error ? (
+                        <img 
+                            src={src} 
+                            alt={alt} 
+                            className={`w-full h-full object-cover transition-all duration-1000 transform hover:scale-105 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+                            onLoad={() => setLoaded(true)}
+                            onError={() => setError(true)}
+                        />
+                    ) : (
+                        <div className="flex flex-col items-center justify-center text-black/20 p-4">
+                            <Icon name="Image" size={40} strokeWidth={1} />
+                            <span className="text-[10px] uppercase tracking-[0.2em] mt-3 font-medium opacity-60 text-center">{alt}</span>
+                        </div>
+                    )}
+                    {!loaded && !error && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-stone-100 animate-pulse">
+                            <div className="w-8 h-8 border-2 border-black/5 border-t-black/20 rounded-full animate-spin"></div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [isScrolled, setIsScrolled] = useState(false);
+
+            useEffect(() => {
+                const handleScroll = () => setIsScrolled(window.scrollY > 50);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            return (
+                <div className="min-h-screen text-[#1A1A1A]">
+                    {/* Navigation */}
+                    <nav className={`fixed w-full z-50 transition-all-500 px-6 py-4 flex justify-between items-center ${isScrolled ? 'bg-[#F9F8F4]/90 backdrop-blur-md py-3 border-b border-black/5 shadow-sm' : 'bg-transparent'}`}>
+                        <div className="text-xl font-bold tracking-tighter uppercase italic">50°C</div>
+                        <div className="hidden md:flex space-x-12 text-[10px] uppercase tracking-[0.2em] font-medium">
+                            <a href="#process" className="hover:opacity-50 transition-opacity">Methodology</a>
+                            <a href="#products" className="hover:opacity-50 transition-opacity">Collection</a>
+                            <a href="#packaging" className="hover:opacity-50 transition-opacity">Apothecary</a>
+                            <a href="#scenarios" className="hover:opacity-50 transition-opacity">Applications</a>
+                        </div>
+                        <button className="px-5 py-2 border border-[#1A1A1A] text-[10px] uppercase tracking-[0.2em] hover:bg-[#1A1A1A] hover:text-white transition-all">
+                            Enquire
+                        </button>
+                    </nav>
+
+                    {/* Hero Section */}
+                    <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden">
+                        <div className="absolute inset-0 z-0">
+                            <SmartImage 
+                                src="removed_rosemary_202604220741.jpg" 
+                                alt="Signature Steak with Chili Flakes" 
+                                className="w-full h-full opacity-90 scale-105"
+                                fallbackColor="bg-[#2A2620]"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#F9F8F4]"></div>
+                        </div>
+
+                        <div className="max-w-4xl relative z-10 px-6">
+                            <span className="inline-block mb-6 text-[10px] uppercase tracking-[0.4em] text-white/80">Lao Highlands • Small Batch • Chef's Plugin</span>
+                            <h1 className="text-6xl md:text-9xl font-light leading-[1.0] mb-8 font-serif text-white italic">
+                                The Science of <br />
+                                <span className="">Wild Heat</span>
+                            </h1>
+                            <p className="max-w-xl mx-auto text-lg md:text-xl font-light leading-relaxed text-white/90 mb-10">
+                                100% natural, macerated in artisanal spirits, preserved at precisely 50°C to lock in the herbal soul.
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center gap-8 text-white/80">
+                                <div className="flex items-center space-x-2 text-[10px] uppercase tracking-widest font-semibold">
+                                    <Icon name="Leaf" size={14} /> <span>Zero Sugar</span>
+                                </div>
+                                <div className="flex items-center space-x-2 text-[10px] uppercase tracking-widest font-semibold">
+                                    <Icon name="Zap" size={14} /> <span>Zero Salt</span>
+                                </div>
+                                <div className="flex items-center space-x-2 text-[10px] uppercase tracking-widest font-semibold">
+                                    <Icon name="FlaskConical" size={14} /> <span>Clean Label</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Methodology Section */}
+                    <section id="process" className="py-32 px-6 md:px-20 bg-white">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                                <div>
+                                    <h2 className="text-[10px] uppercase tracking-[0.4em] mb-8 text-[#8B0000] font-bold tracking-widest">Core Methodology</h2>
+                                    <h3 className="text-4xl md:text-6xl font-serif mb-8 leading-tight italic text-balance">Preserving the <br/>Herbal Life-Force.</h3>
+                                    <p className="text-lg opacity-70 mb-12 leading-relaxed max-w-lg">
+                                        Our core philosophy lies in rejecting industrial high-heat dehydration. By maintaining a constant 50°C infusion, we reach the golden equilibrium where cellular integrity is preserved, keeping the chili's original gemstone luster and botanical fragrance intact.
+                                    </p>
+                                    
+                                    <div className="space-y-12">
+                                        {[
+                                            { step: "01", title: "Selection", desc: "Hand-picked by local small-plot farmers in the Lao Highlands.", icon: "Leaf" },
+                                            { step: "02", title: "Infusion", desc: "6-7 hours of deep maceration in whiskey or active fruit acids.", icon: "Droplets" },
+                                            { step: "03", title: "Activation", desc: "Constant 50°C dehydration to lock in complex flavor peptides.", icon: "Thermometer" }
+                                        ].map((item, idx) => (
+                                            <div key={idx} className="flex space-x-8 items-start group">
+                                                <span className="text-[10px] font-mono opacity-30 pt-1 tracking-tighter group-hover:opacity-100 transition-opacity">{item.step}</span>
+                                                <div>
+                                                    <h4 className="text-xl font-serif mb-2 italic group-hover:text-[#8B0000] transition-colors">{item.title}</h4>
+                                                    <p className="text-sm opacity-60 uppercase tracking-[0.1em] leading-relaxed max-w-xs">{item.desc}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-4 pt-12">
+                                        <SmartImage src="488551606_1319267366392791_7018528253277057154_n.jpg" alt="Lao Highland Farming" className="aspect-[3/4] rounded-sm shadow-sm grayscale hover:grayscale-0 transition-all duration-700" />
+                                        <SmartImage src="image.png_202604191249.jpeg" alt="Fresh Raw Ingredients" className="aspect-square rounded-sm shadow-sm" />
+                                    </div>
+                                    <div className="space-y-4">
+                                        <SmartImage src="change_the_red_202604191316.jpg" alt="Spirit Macerated Texture" className="aspect-square rounded-sm shadow-sm" />
+                                        <SmartImage src="kee_the_chili_202604191316.jpg" alt="Yellow Botanical Heat" className="aspect-[3/4] rounded-sm shadow-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Product Sequence */}
+                    <section id="products" className="py-32 px-6 md:px-20 bg-[#F9F8F4]">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+                                <div className="max-w-xl">
+                                    <h2 className="text-[10px] uppercase tracking-[0.4em] mb-4 opacity-60 font-bold tracking-widest">The Collection</h2>
+                                    <h3 className="text-5xl font-serif italic text-balance text-[#1A1A1A]">Pioneer Flavor Plugins</h3>
+                                </div>
+                                <p className="text-sm opacity-50 uppercase tracking-widest max-w-[280px] md:text-right leading-loose">
+                                    Batch-produced elements designed for elevated professional culinary compositions.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                                {/* Product 1: Mekong Wildfire */}
+                                <div className="group bg-white p-1 pb-12 transition-all duration-500 hover:shadow-2xl">
+                                    <div className="mb-12 relative bg-[#F4F3F0] overflow-hidden">
+                                        <SmartImage src="removed_sticker_2K_202604211624.jpg" alt="Mekong Wildfire Jars" className="aspect-[4/5]" />
+                                        <div className="absolute top-6 left-6 flex gap-2">
+                                            <span className="px-4 py-1.5 bg-[#8B0000] text-white text-[9px] uppercase tracking-[0.2em] font-bold">Mekong Wildfire</span>
+                                            <span className="px-4 py-1.5 bg-white text-black text-[9px] uppercase tracking-[0.2em] font-bold italic">The Original</span>
+                                        </div>
+                                    </div>
+                                    <div className="px-10">
+                                        <h4 className="text-3xl font-serif mb-4 italic underline decoration-[#8B0000]/20 underline-offset-8">Mekong Wildfire</h4>
+                                        <p className="text-sm leading-relaxed opacity-60 mb-8 uppercase tracking-wide italic">
+                                            Infused with 45% Vol. Kainoy Whiskey. Deep ruby-red flakes with fermented malt sweetness and a clean, explosive finish.
+                                        </p>
+                                        <div className="flex items-center gap-10 border-t border-black/5 pt-8">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[8px] uppercase tracking-widest opacity-40 font-bold">Infusion</span>
+                                                <span className="text-[10px] uppercase tracking-widest font-bold">Lao Whiskey</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[8px] uppercase tracking-widest opacity-40 font-bold">Flavor Profile</span>
+                                                <span className="text-[10px] uppercase tracking-widest font-bold">Umami / Malt</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Product 2: Lao Citrus Burst */}
+                                <div className="group bg-white p-1 pb-12 transition-all duration-500 hover:shadow-2xl">
+                                    <div className="mb-12 relative bg-[#F4F3F0] overflow-hidden">
+                                        <SmartImage src="keep_the_chili_202604191156.jpg" alt="Lao Citrus Burst Flakes" className="aspect-[4/5]" />
+                                        <div className="absolute top-6 left-6 flex gap-2">
+                                            <span className="px-4 py-1.5 bg-[#E88D00] text-white text-[9px] uppercase tracking-[0.2em] font-bold">Citrus Burst</span>
+                                            <span className="px-4 py-1.5 bg-white text-black text-[9px] uppercase tracking-[0.2em] font-bold italic">The Zesty</span>
+                                        </div>
+                                    </div>
+                                    <div className="px-10">
+                                        <h4 className="text-3xl font-serif mb-4 italic underline decoration-[#E88D00]/20 underline-offset-8">Lao Citrus Burst</h4>
+                                        <p className="text-sm leading-relaxed opacity-60 mb-8 uppercase tracking-wide italic">
+                                            Macerated in cold-pressed Calamansi. Vivid orange plugin with high-penetration citrus oil acidity and ultra-brittle texture.
+                                        </p>
+                                        <div className="flex items-center gap-10 border-t border-black/5 pt-8">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[8px] uppercase tracking-widest opacity-40 font-bold">Infusion</span>
+                                                <span className="text-[10px] uppercase tracking-widest font-bold">Citrus Acid</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[8px] uppercase tracking-widest opacity-40 font-bold">Texture</span>
+                                                <span className="text-[10px] uppercase tracking-widest font-bold">Ultra Crisp</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Packaging Section */}
+                    <section id="packaging" className="py-32 bg-[#1A1A1A] text-[#F9F8F4] px-6 md:px-20 overflow-hidden">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+                                <div className="relative order-2 lg:order-1 flex justify-center">
+                                    <div className="aspect-[3/4] w-full max-w-md bg-[#252525] rounded-sm p-12 flex items-center justify-center relative overflow-hidden group">
+                                        <SmartImage src="removed_measurement_lines_202604220739.jpg" alt="Apothecary Jar Packaging" className="w-full h-auto z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-transparent" />
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <span className="text-[18rem] font-serif italic opacity-[0.02] select-none scale-150">A</span>
+                                        </div>
+                                    </div>
+                                    <div className="absolute -bottom-10 -right-4 bg-white/5 backdrop-blur-2xl p-10 border border-white/10 hidden md:block">
+                                        <p className="text-[10px] uppercase tracking-[0.4em] font-bold mb-4 italic text-[#E2DED0]">Standardization</p>
+                                        <p className="text-[9px] uppercase tracking-[0.2em] opacity-40 leading-loose">
+                                            35g Pro-Scale Apothecary Jar <br/>
+                                            Artisanal Walnut Cork <br/>
+                                            Batch Hand-Signed
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="order-1 lg:order-2">
+                                    <h2 className="text-[10px] uppercase tracking-[0.4em] mb-8 text-[#E2DED0] font-bold italic tracking-widest">Laboratory Grade</h2>
+                                    <h3 className="text-5xl md:text-7xl font-serif mb-10 leading-tight">The Pure <br/>Containment.</h3>
+                                    <p className="text-lg opacity-60 mb-12 leading-relaxed font-light">
+                                        Engineered for the professional chef's station. Our laboratory-grade UV-resistant glass and walnut airtight seal ensure flavor slices maintain ultimate crispness for up to 12 months, even in high-humidity kitchen environments.
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-y-12 gap-x-8">
+                                        {[
+                                            { label: "Stability", value: "Nitrogen Filled" },
+                                            { label: "Moisture", value: "Aw < 0.5" },
+                                            { label: "Origin", value: "GPS Tracking" },
+                                            { label: "Labeling", value: "Felt-Textured" }
+                                        ].map((stat, i) => (
+                                            <div key={i} className="border-l border-white/10 pl-6 group">
+                                                <p className="text-[9px] uppercase tracking-widest opacity-30 mb-2 group-hover:opacity-100 transition-opacity font-bold">{stat.label}</p>
+                                                <p className="text-xs uppercase tracking-[0.2em] font-bold group-hover:text-[#E2DED0] transition-colors">{stat.value}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Application Scenarios */}
+                    <section id="scenarios" className="py-32 px-6 md:px-20 bg-white overflow-hidden">
+                        <div className="max-w-4xl mx-auto text-center mb-24">
+                            <h2 className="text-[10px] uppercase tracking-[0.4em] mb-6 opacity-60 italic font-bold tracking-widest text-[#8B0000]">The Protocol</h2>
+                            <h3 className="text-5xl font-serif italic underline decoration-black/5 underline-offset-12">Culinary Compositions</h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-7xl mx-auto mb-24">
+                            {/* Scenario 1: Red Meat */}
+                            <div className="space-y-8 group">
+                                <SmartImage src="removed_rosemary_202604220741.jpg" alt="Steak Application" className="aspect-[4/5] rounded-sm" />
+                                <div className="px-2">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h5 className="text-[10px] uppercase tracking-[0.3em] font-bold">01 / Red Meat</h5>
+                                        <span className="text-[8px] opacity-40 uppercase tracking-widest text-black/40">Mekong Wildfire</span>
+                                    </div>
+                                    <p className="text-xs opacity-50 uppercase tracking-[0.2em] leading-relaxed italic">
+                                        Acting as the final flavor layer for steak, creating deep Maillard resonance with high-temperature aged fats.
+                                    </p>
+                                </div>
+                            </div>
+                            {/* Scenario 2: Seafood */}
+                            <div className="space-y-8 group pt-12 md:pt-24">
+                                <SmartImage src="chili_flakes_on_202604220741.jpg" alt="Seafood Application" className="aspect-[4/5] rounded-sm" />
+                                <div className="px-2">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h5 className="text-[10px] uppercase tracking-[0.3em] font-bold">02 / Raw Bar</h5>
+                                        <span className="text-[8px] opacity-40 uppercase tracking-widest text-black/40">Citrus Burst</span>
+                                    </div>
+                                    <p className="text-xs opacity-50 uppercase tracking-[0.2em] leading-relaxed italic">
+                                        Accenting seared prawns or oysters, the rapid burst of citrus acidity instantly ignites the natural sweetness of the seafood.
+                                    </p>
+                                </div>
+                            </div>
+                            {/* Scenario 3: Pasta */}
+                            <div className="space-y-8 group">
+                                <SmartImage src="add_in_green_202604201640.jpg" alt="Pasta Application" className="aspect-[4/5] rounded-sm" />
+                                <div className="px-2">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h5 className="text-[10px] uppercase tracking-[0.3em] font-bold">03 / Modern Pasta</h5>
+                                        <span className="text-[8px] opacity-40 uppercase tracking-widest text-black/40">Universal Mix</span>
+                                    </div>
+                                    <p className="text-xs opacity-50 uppercase tracking-[0.2em] leading-relaxed italic">
+                                        Providing a multi-layered "aromatic, spicy, and crunchy" triple impact for light olive oil-based pasta.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between p-14 bg-[#F9F8F4] border border-black/5 rounded-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#8B0000]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+                            <div className="flex items-center gap-8 mb-8 md:mb-0 relative z-10">
+                                <Icon name="MapPin" size={40} className="opacity-10 text-[#8B0000]" />
+                                <div>
+                                    <p className="text-[10px] uppercase tracking-[0.4em] font-bold mb-2 italic">The Vientiane Lab</p>
+                                    <p className="text-[11px] opacity-40 uppercase tracking-widest font-mono font-bold tracking-tighter">19.8563° N, 102.4955° E</p>
+                                </div>
+                            </div>
+                            <button className="px-16 py-5 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-[0.4em] font-bold hover:bg-[#8B0000] transition-colors relative z-10 group">
+                                Request Catalog <Icon name="ChevronRight" size={14} className="inline ml-2 group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        </div>
+                    </section>
+
+                    {/* Footer */}
+                    <footer className="bg-[#F9F8F4] py-24 px-6 md:px-20 border-t border-black/5">
+                        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
+                            <div className="space-y-8">
+                                <div className="text-2xl font-bold tracking-tighter uppercase italic">50°C</div>
+                                <p className="text-[10px] uppercase tracking-[0.25em] leading-loose opacity-40 max-w-[220px] font-medium">
+                                    Boutique Ingredients for Avant-garde chefs. Hand-crafted with precision in the Lao Highlands.
+                                </p>
+                            </div>
+                            <div>
+                                <h5 className="text-[10px] uppercase tracking-[0.4em] font-bold mb-10 italic text-[#8B0000]">Navigation</h5>
+                                <ul className="text-[10px] space-y-5 uppercase tracking-[0.2em] opacity-60 font-bold">
+                                    <li><a href="#process" className="hover:text-[#8B0000] transition-colors">The Methodology</a></li>
+                                    <li><a href="#products" className="hover:text-[#8B0000] transition-colors">Boutique Collection</a></li>
+                                    <li><a href="#scenarios" className="hover:text-[#8B0000] transition-colors">Culinary Protocol</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 className="text-[10px] uppercase tracking-[0.4em] font-bold mb-10 italic text-[#8B0000]">Inquiry</h5>
+                                <ul className="text-[10px] space-y-5 uppercase tracking-[0.2em] opacity-60 font-bold">
+                                    <li className="hover:text-[#8B0000] cursor-pointer">Distribution</li>
+                                    <li className="hover:text-[#8B0000] cursor-pointer">Chef's Sample Kit</li>
+                                    <li className="hover:text-[#8B0000] cursor-pointer">Lab Operations</li>
+                                </ul>
+                            </div>
+                            <div className="space-y-8">
+                                <h5 className="text-[10px] uppercase tracking-[0.4em] font-bold mb-10 italic text-[#8B0000]">Integrity</h5>
+                                <div className="flex gap-6 opacity-20 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700 cursor-pointer text-[#8B0000]">
+                                    <Icon name="FlaskConical" size={24} />
+                                    <Icon name="Leaf" size={24} />
+                                    <Icon name="Zap" size={24} />
+                                </div>
+                                <p className="text-[9px] uppercase tracking-[0.2em] opacity-40 font-bold italic tracking-[0.3em]">Clean Label Certified</p>
+                            </div>
+                        </div>
+                        <div className="max-w-7xl mx-auto mt-24 pt-10 border-t border-black/5 flex flex-col md:flex-row justify-between items-center gap-8 text-[9px] uppercase tracking-[0.5em] opacity-30 font-bold">
+                            <div>© 2026 Fifty Celsius Labs • Lao Highlands</div>
+                            <div className="flex flex-wrap justify-center gap-10 italic underline decoration-black/10 underline-offset-4 text-center">
+                                <span>Clean Label</span>
+                                <span>Zero Sodium</span>
+                                <span>Small Farm Sourced</span>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
